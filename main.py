@@ -1,23 +1,33 @@
-import tkinter
-import os
-import pyglet
-from time import sleep
+from tkinter import Tk, Label as tkLabel, Button as tkButton, \
+    StringVar as tkStringVar, IntVar as tkIntVar, \
+    Frame as tkFrame, RIGHT as tk_RIGHT, TOP as tk_TOP
+from os.path import dirname
+from pyglet.font import add_file as add_font_file
+# from time import sleep
 from datetime import datetime
 from requests import get as get_request
+from sys import platform as os_platform
+
+if __name__ == '__main__':
+    if 'win' in os_platform:
+        path_separator = '\\'
+    else:
+        path_separator = '/'
+    parent_path = dirname(__file__)
 
 
-def relPath(suffix_path):
-    final_path = os.path.dirname(__file__) + '\\' + suffix_path
-    return final_path
+    def relPath(suffix_path):
+        final_path = parent_path + path_separator + suffix_path
+        return final_path
 
 
-pyglet.font.add_file(relPath('requirements\\Nunito-Regular.ttf'))
-pyglet.font.add_file(relPath('requirements\\Roboto-Medium.ttf'))
-pyglet.font.add_file(relPath('requirements\\Roboto-Light.ttf'))
-pyglet.font.add_file(relPath('requirements\\Ubuntu-Regular.ttf'))
+    add_font_file(relPath('requirements\\Nunito-Regular.ttf'))
+    add_font_file(relPath('requirements\\Roboto-Medium.ttf'))
+    add_font_file(relPath('requirements\\Roboto-Light.ttf'))
+    add_font_file(relPath('requirements\\Ubuntu-Regular.ttf'))
 
 
-class AppInterface(tkinter.Tk):
+class AppInterface(Tk):
     bg_color = '#262624'
     fg_color = '#ffffff'
     menu_btn_active = False
@@ -32,13 +42,13 @@ class AppInterface(tkinter.Tk):
         self.title("Splash Clock")
         self.iconbitmap(relPath('media\\icon.ico'))
         self.config(bg=self.bg_color)
-        self.header_text = tkinter.StringVar()
-        header = tkinter.Label(textvariable=self.header_text,
-                               bg=self.bg_color,
-                               fg=self.fg_color,
-                               font=('Nunito', 40),
-                               anchor='n')
-        header.pack(side=tkinter.TOP, pady=(25, 0))
+        self.header_text = tkStringVar()
+        header = tkLabel(textvariable=self.header_text,
+                         bg=self.bg_color,
+                         fg=self.fg_color,
+                         font=('Nunito', 40),
+                         anchor='n')
+        header.pack(side=tk_TOP, pady=(25, 0))
         self.clockScreen()
         self.blankSpace(self), self.blankSpace(self), self.blankSpace(self)
         self.blankSpace(self), self.menuButton(self, "Clock", padx=54), self.blankSpace(self)
@@ -48,7 +58,7 @@ class AppInterface(tkinter.Tk):
 
     @classmethod
     def blankSpace(cls, container):
-        tkinter.Label(container, bg=cls.bg_color).pack()
+        tkLabel(container, bg=cls.bg_color).pack()
 
     def setButtonActivity(self):
         if self.menu_btn_active:
@@ -61,23 +71,23 @@ class AppInterface(tkinter.Tk):
         action()
 
     def menuButton(self, container, text, padx=50, target=print):
-        menu_btn = tkinter.Button(container,
-                                  activebackground='#22a6b3',
-                                  text=text,
-                                  command=target,
-                                  bg=self.fg_color,
-                                  fg=self.bg_color,
-                                  borderwidth=0,
-                                  font=('Nunito', 20, 'bold'),
-                                  padx=padx,
-                                  pady=None)
+        menu_btn = tkButton(container,
+                            activebackground='#22a6b3',
+                            text=text,
+                            command=target,
+                            bg=self.fg_color,
+                            fg=self.bg_color,
+                            borderwidth=0,
+                            font=('Nunito', 20, 'bold'),
+                            padx=padx,
+                            pady=None)
         menu_btn.bind('<Enter>', lambda _: menu_btn.config(bg='#7bed9f'))
         menu_btn.bind('<Leave>', lambda _: menu_btn.config(bg=self.fg_color))
         menu_btn.pack(padx=(0, 150))
 
     def clockScreen(self):
         self.header_text.set("Splash Clock | Clock")
-        time_str, date_str, weather_str = tkinter.StringVar(), tkinter.StringVar(), tkinter.StringVar()
+        time_str, date_str, weather_str = tkStringVar(), tkStringVar(), tkStringVar()
 
         def liveTime():
             time_str.set(datetime.now().strftime('%I : %M : %S %p'))
@@ -95,26 +105,26 @@ class AppInterface(tkinter.Tk):
             weather_str.set(weather_output)
             weather_widget.after(3600000, liveWeather)
 
-        dt_frame = tkinter.Frame(self, bg=self.bg_color, borderwidth=0, padx=100)
-        clock_widget = tkinter.Label(dt_frame, textvariable=time_str,
-                                     bg=self.bg_color,
-                                     fg=self.fg_color,
-                                     font=('Roboto Medium', 48, 'bold'),
-                                     anchor='center')
-        date_widget = tkinter.Label(dt_frame, textvariable=date_str,
-                                    bg=self.bg_color,
-                                    fg=self.fg_color,
-                                    font=('Roboto Light', 20,),
-                                    anchor='center')
-        weather_widget = tkinter.Label(dt_frame, textvariable=weather_str,
-                                       bg=self.bg_color,
-                                       fg='#a29bfe',
-                                       font=('Ubuntu', 20, 'bold'),
-                                       anchor='center')
+        dt_frame = tkFrame(self, bg=self.bg_color, borderwidth=0, padx=100)
+        clock_widget = tkLabel(dt_frame, textvariable=time_str,
+                               bg=self.bg_color,
+                               fg=self.fg_color,
+                               font=('Roboto Medium', 48, 'bold'),
+                               anchor='center')
+        date_widget = tkLabel(dt_frame, textvariable=date_str,
+                              bg=self.bg_color,
+                              fg=self.fg_color,
+                              font=('Roboto Light', 20,),
+                              anchor='center')
+        weather_widget = tkLabel(dt_frame, textvariable=weather_str,
+                                 bg=self.bg_color,
+                                 fg='#a29bfe',
+                                 font=('Ubuntu', 20, 'bold'),
+                                 anchor='center')
         clock_widget.pack(), date_widget.pack(), self.blankSpace(dt_frame), weather_widget.pack()
         self.blankSpace(dt_frame), self.blankSpace(dt_frame), self.blankSpace(dt_frame), self.blankSpace(dt_frame)
         self.blankSpace(dt_frame)
-        dt_frame.pack(side=tkinter.RIGHT)
+        dt_frame.pack(side=tk_RIGHT)
         liveTime()
         liveWeather()
 
@@ -123,15 +133,15 @@ class AppInterface(tkinter.Tk):
 
     def stopwatchScreen(self):
         self.header_text.set("Splash Clock | Stopwatch")
-        stopwatch_frame = tkinter.Frame(self, bg=self.bg_color, borderwidth=0, padx=100)
-        counter, counter_slack = 0, tkinter.IntVar()
-        stopwatch_widget = tkinter.Label(stopwatch_frame, textvariable=counter_slack,
-                                         bg=self.bg_color,
-                                         fg=self.fg_color,
-                                         font=('Roboto Medium', 48, 'bold'),
-                                         anchor='center')
+        stopwatch_frame = tkFrame(self, bg=self.bg_color, borderwidth=0, padx=100)
+        counter, counter_slack = 0, tkIntVar()
+        stopwatch_widget = tkLabel(stopwatch_frame, textvariable=counter_slack,
+                                   bg=self.bg_color,
+                                   fg=self.fg_color,
+                                   font=('Roboto Medium', 48, 'bold'),
+                                   anchor='center')
         stopwatch_widget.pack()
-        stopwatch_frame.pack(side=tkinter.RIGHT)
+        stopwatch_frame.pack(side=tk_RIGHT)
 
 
 UI = AppInterface()
